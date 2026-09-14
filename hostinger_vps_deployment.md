@@ -1,8 +1,141 @@
 # 🚀 Hostinger VPS Deployment Guide — TaxiCRM (Laravel)
 
-This step-by-step guide will walk you through hosting your **TaxiCRM / Lead Management** application on a **Hostinger VPS** (Ubuntu 22.04 or 24.04 LTS) using **Nginx**, **PHP 8.2/8.3**, **SQLite/MySQL**, and free **SSL (Certbot)**.
+---
+
+## ⚡ QUICK START: Adding TaxiCRM to an EXISTING VPS (Already Hosted)
+
+If your VPS is **already running** with other websites, follow these exact steps to add TaxiCRM on a **new domain or subdomain** (e.g., `crm.yourdomain.com`):
+
+### 1. SSH into your VPS & Clone Repository
+```bash
+cd /var/www
+git clone https://github.com/Adarsh6119/lead-management.git lead-management
+cd /var/www/lead-management
+```
+
+### 2. Set Directory Permissions
+```bash
+sudo chown -R www-data:www-data /var/www/lead-management
+sudo chmod -R 775 /var/www/lead-management/storage
+sudo chmod -R 775 /var/www/lead-management/bootstrap/cache
+sudo chmod -R 775 /var/www/lead-management/database
+```
+
+### 3. Install Packages & Build Production Assets
+```bash
+composer install --no-dev --optimize-autoloader
+npm install
+npm run build
+```
+
+### 4. Setup MySQL Database for Large Production Scale
+Create a dedicated MySQL database & user on your VPS:
+```bash
+sudo mysql -u root -p
+```
+Run the following SQL commands inside MySQL terminal:
+```sql
+CREATE DATABASE lead_management CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'taxicrm_user'@'localhost' IDENTIFIED BY 'YourStrongPassword123!';
+GRANT ALL PRIVILEGES ON lead_management.* TO 'taxicrm_user'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+Option A — Import production `database.sql` directly:
+```bash
+mysql -u taxicrm_user -p lead_management < /var/www/lead-management/database.sql
+```
+
+Option B — Configure `.env` for MySQL and run Laravel migrations:
+```bash
+cp .env.example .env
+nano .env
+```
+
+Set MySQL credentials in `.env`:
+```ini
+APP_NAME="TaxiCRM"
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://crm.yourdomain.com
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=lead_management
+DB_USERNAME=taxicrm_user
+DB_PASSWORD=YourStrongPassword123!
+
+BUSINESS_STATE="Uttar Pradesh"
+```
+
+Generate app key & clear/cache configurations:
+```bash
+php artisan key:generate
+php artisan migrate --force
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+### 5. Create a NEW Nginx Block for your Domain/Subdomain
+```bash
+sudo nano /etc/nginx/sites-available/lead-management
+```
+Paste this configuration (replace `crm.yourdomain.com` with your new domain/subdomain):
+```nginx
+server {
+    listen 80;
+    listen [::]:80;
+    server_name crm.yourdomain.com;
+    root /var/www/lead-management/public;
+
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-Content-Type-Options "nosniff";
+
+    index index.php;
+    charset utf-8;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    error_page 404 /index.php;
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock; # Adjust PHP version if 8.1 or 8.3
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+}
+```
+
+### 6. Enable Site & SSL Certificate
+```bash
+sudo ln -s /etc/nginx/sites-available/lead-management /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+
+# Issue free SSL Certificate for the new subdomain/domain
+sudo certbot --nginx -d crm.yourdomain.com
+```
+
+### 🔑 Credentials on New Site:
+- **Team Lead**: `TL001` / `tl123`
+- **Admin**: `ADMIN01` / `admin123`
+- **Accountant**: `ACCT01` / `accounts123`
 
 ---
+
+## 📋 Full Setup Guide (For Fresh VPS)
 
 ## 📋 Prerequisites
 1. Hostinger VPS running **Ubuntu 22.04 or 24.04 LTS**.
