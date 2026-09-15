@@ -66,7 +66,7 @@
                         </div>
                     @empty
                         <div class="p-8 text-center text-slate-400">No cab types configured yet.</div>
-                    @forelse
+                    @endforelse
                 </div>
             </div>
 
