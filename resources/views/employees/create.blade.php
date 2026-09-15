@@ -41,9 +41,11 @@
                         <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Role & Permissions <span class="text-rose-500">*</span></label>
                         <select name="role" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
                             <option value="employee" {{ old('role') === 'employee' ? 'selected' : '' }}>Employee (Leads & Booking Entry)</option>
-                            <option value="head" {{ old('role') === 'head' ? 'selected' : '' }}>Head / Team Lead (Monitoring & Access Control)</option>
-                            <option value="accountant" {{ old('role') === 'accountant' ? 'selected' : '' }}>Accountant (GST & Ledger)</option>
-                            <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin (Full System Access)</option>
+                            @if(Auth::user()->isAdmin())
+                                <option value="head" {{ old('role') === 'head' ? 'selected' : '' }}>Head / Team Lead (Monitoring & Access Control)</option>
+                                <option value="accountant" {{ old('role') === 'accountant' ? 'selected' : '' }}>Accountant (GST & Ledger)</option>
+                                <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin (Full System Access)</option>
+                            @endif
                         </select>
                         @error('role') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>

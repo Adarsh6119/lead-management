@@ -38,12 +38,15 @@
                     <!-- Role -->
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Role <span class="text-rose-500">*</span></label>
-                        <select name="role" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all">
+                        <select name="role" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all" {{ !Auth::user()->isAdmin() ? 'disabled' : '' }}>
                             <option value="employee" {{ old('role', $employee->role) === 'employee' ? 'selected' : '' }}>Employee</option>
                             <option value="head" {{ in_array(old('role', $employee->role), ['head', 'tl', 'team_lead']) ? 'selected' : '' }}>Head / Team Lead</option>
                             <option value="accountant" {{ old('role', $employee->role) === 'accountant' ? 'selected' : '' }}>Accountant</option>
                             <option value="admin" {{ old('role', $employee->role) === 'admin' ? 'selected' : '' }}>Admin</option>
                         </select>
+                        @if(!Auth::user()->isAdmin())
+                            <input type="hidden" name="role" value="{{ $employee->role }}">
+                        @endif
                         @error('role') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
 

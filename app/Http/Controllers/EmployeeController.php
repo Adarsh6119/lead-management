@@ -41,6 +41,11 @@ class EmployeeController extends Controller
             abort(403, 'Only Admin or Team Lead (TL) has permission to create new employees.');
         }
 
+        // If logged in user is TL (Head) and not Admin, force role to employee
+        if ($user->isHead() && !$user->isAdmin()) {
+            $request->merge(['role' => 'employee']);
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'login_id' => 'required|string|max:50|unique:users,login_id',
