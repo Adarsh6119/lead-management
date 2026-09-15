@@ -27,8 +27,8 @@ class EmployeeController extends Controller
     public function create()
     {
         $user = Auth::user();
-        if (!$user->isHead()) {
-            abort(403, 'Only Team Lead (TL) has permission to create new employees.');
+        if (!$user->isAdmin() && !$user->isHead()) {
+            abort(403, 'Only Admin or Team Lead (TL) has permission to create new employees.');
         }
 
         return view('employees.create');
@@ -37,8 +37,8 @@ class EmployeeController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
-        if (!$user->isHead()) {
-            abort(403, 'Only Team Lead (TL) has permission to create new employees.');
+        if (!$user->isAdmin() && !$user->isHead()) {
+            abort(403, 'Only Admin or Team Lead (TL) has permission to create new employees.');
         }
 
         $request->validate([

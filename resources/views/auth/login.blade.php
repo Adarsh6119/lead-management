@@ -36,7 +36,7 @@
                                 🔑
                             </div>
                             <input id="login_id" name="login_id" type="text" required autofocus
-                                value="{{ old('login_id', 'ADMIN01') }}"
+                                value="{{ old('login_id') }}"
                                 autocomplete="username"
                                 placeholder="e.g. EMP001, ADMIN01, ACCT01"
                                 class="block w-full pl-10 pr-3 py-3 bg-slate-950 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent text-sm font-mono tracking-wider transition-all" />
@@ -54,7 +54,7 @@
                                 🔒
                             </div>
                             <input id="password" name="password" type="password" required
-                                value="admin123"
+                                value=""
                                 autocomplete="current-password"
                                 placeholder="••••••••"
                                 class="block w-full pl-10 pr-3 py-3 bg-slate-950 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent text-sm transition-all" />
@@ -80,58 +80,7 @@
                         </button>
                     </div>
                 </form>
-
-                <!-- Quick Demo Login Credentials Card -->
-                <div class="mt-8 pt-6 border-t border-slate-800">
-                    <div class="text-xs font-bold uppercase tracking-wider text-amber-400/90 mb-3 flex items-center justify-between">
-                        <span>⚡ 1-Click Quick Demo Login</span>
-                        <span class="text-[10px] text-slate-400 font-normal">Click to fill & login</span>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-2 text-xs">
-                        <button type="button" onclick="quickLogin('ADMIN01', 'admin123')"
-                            class="p-2.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 text-left transition-colors">
-                            <div class="font-bold flex items-center justify-between">ADMIN01 <span>⚡</span></div>
-                            <div class="text-[10px] text-slate-400">Admin (admin123)</div>
-                        </button>
-
-                        <button type="button" onclick="quickLogin('ACCT01', 'accounts123')"
-                            class="p-2.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-left transition-colors">
-                            <div class="font-bold flex items-center justify-between">ACCT01 <span>⚡</span></div>
-                            <div class="text-[10px] text-slate-400">Accounts (accounts123)</div>
-                        </button>
-
-                        <button type="button" onclick="quickLogin('EMP001', 'password123')"
-                            class="p-2.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-left transition-colors">
-                            <div class="font-bold flex items-center justify-between">EMP001 <span>⚡</span></div>
-                            <div class="text-[10px] text-slate-400">Emp #1 (password123)</div>
-                        </button>
-                    </div>
-
-                    <!-- 15 Employees Selector -->
-                    <div class="mt-3 bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                        <label class="block text-[11px] text-slate-400 mb-1 font-medium">Select Employee to Auto-Login (EMP001 to EMP015):</label>
-                        <select onchange="if(this.value) quickLogin(this.value, 'password123')" class="w-full bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-300 p-2.5 focus:ring-amber-400 font-mono">
-                            <option value="">-- Click to Select & Sign In --</option>
-                            @for ($i = 1; $i <= 15; $i++)
-                                @php $empCode = sprintf('EMP%03d', $i); @endphp
-                                <option value="{{ $empCode }}">{{ $empCode }} — Employee {{ $i }} (Password: password123)</option>
-                            @endfor
-                        </select>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
-
-    <script>
-        function quickLogin(loginId, pass) {
-            if (!loginId) return;
-            var idEl = document.getElementById('login_id');
-            var passEl = document.getElementById('password');
-            idEl.value = loginId;
-            passEl.value = pass;
-            document.getElementById('loginForm').submit();
-        }
-    </script>
 </x-guest-layout>

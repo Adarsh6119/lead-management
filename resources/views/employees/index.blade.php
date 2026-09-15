@@ -9,9 +9,9 @@
                 <a href="{{ route('employees.performance') }}" class="px-4 py-2.5 bg-amber-400 hover:bg-amber-500 text-slate-950 font-black rounded-xl text-xs shadow-md flex items-center gap-1.5 transition-all">
                     <span>📈 Targets & Performance</span>
                 </a>
-                @if(Auth::user()->isHead())
+                @if(Auth::user()->isAdmin() || Auth::user()->isHead())
                 <a href="{{ route('employees.create') }}" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-md shadow-indigo-600/30 flex items-center gap-2 transition-all">
-                    <span>➕ Add New Employee (TL Exclusive)</span>
+                    <span>➕ Add New Employee</span>
                 </a>
                 @endif
             </div>

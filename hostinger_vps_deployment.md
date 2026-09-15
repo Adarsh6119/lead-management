@@ -57,6 +57,7 @@ Set MySQL credentials in `.env`:
 ```ini
 APP_NAME="TaxiCRM"
 APP_ENV=production
+APP_KEY=
 APP_DEBUG=false
 APP_URL=https://crm.yourdomain.com
 
