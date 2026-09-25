@@ -13,11 +13,11 @@ class EmployeeController extends Controller
     public function index()
     {
         $user = Auth::user();
-        if (!$user->isAdmin() && !$user->isHead()) {
+        if (!$user || (!$user->isAdmin() && !$user->isHead())) {
             abort(403, 'Admin or Team Lead access required.');
         }
 
-        $employees = User::whereIn('role', ['employee', 'accountant', 'head', 'admin'])
+        $employees = User::whereIn('role', ['employee', 'accountant', 'head', 'tl', 'team_lead', 'admin'])
             ->withCount(['leads', 'bookings'])
             ->get();
 
@@ -27,7 +27,7 @@ class EmployeeController extends Controller
     public function create()
     {
         $user = Auth::user();
-        if (!$user->isAdmin() && !$user->isHead()) {
+        if (!$user || (!$user->isAdmin() && !$user->isHead())) {
             abort(403, 'Only Admin or Team Lead (TL) has permission to create new employees.');
         }
 
@@ -37,7 +37,7 @@ class EmployeeController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
-        if (!$user->isAdmin() && !$user->isHead()) {
+        if (!$user || (!$user->isAdmin() && !$user->isHead())) {
             abort(403, 'Only Admin or Team Lead (TL) has permission to create new employees.');
         }
 
@@ -72,7 +72,7 @@ class EmployeeController extends Controller
     public function edit($id)
     {
         $user = Auth::user();
-        if (!$user->isAdmin() && !$user->isHead()) {
+        if (!$user || (!$user->isAdmin() && !$user->isHead())) {
             abort(403, 'Admin or Team Lead access required.');
         }
 
@@ -88,7 +88,7 @@ class EmployeeController extends Controller
     public function update(Request $request, $id)
     {
         $user = Auth::user();
-        if (!$user->isAdmin() && !$user->isHead()) {
+        if (!$user || (!$user->isAdmin() && !$user->isHead())) {
             abort(403, 'Admin or Team Lead access required.');
         }
 
@@ -133,7 +133,7 @@ class EmployeeController extends Controller
     public function toggleAccess(Request $request, $id)
     {
         $user = Auth::user();
-        if (!$user->isAdmin() && !$user->isHead()) {
+        if (!$user || (!$user->isAdmin() && !$user->isHead())) {
             abort(403, 'Admin or Team Lead access required.');
         }
 
@@ -157,7 +157,7 @@ class EmployeeController extends Controller
     public function destroy($id)
     {
         $user = Auth::user();
-        if (!$user->isAdmin() && !$user->isHead()) {
+        if (!$user || (!$user->isAdmin() && !$user->isHead())) {
             abort(403, 'Admin or Team Lead access required.');
         }
 

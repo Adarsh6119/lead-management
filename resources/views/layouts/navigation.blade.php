@@ -173,11 +173,14 @@
                     @if(in_array(Auth::user()->role, ['admin', 'accountant']))
                     <a href="{{ route('accounting.index') }}" class="block px-3 py-2 rounded-xl text-sm font-bold {{ request()->routeIs('accounting.*') ? 'bg-amber-400 text-slate-950' : 'text-slate-200 hover:bg-slate-900' }}">🧾 Accounting & GST</a>
                     @endif
-                    @if(Auth::user()->role === 'admin')
-                    <div class="pt-2 text-xs font-extrabold text-amber-400 uppercase">Admin Controls</div>
-                    <a href="{{ route('employees.performance') }}" class="block px-3 py-2 rounded-xl text-sm font-bold {{ request()->routeIs('employees.performance') ? 'bg-amber-400 text-slate-950' : 'text-slate-200 hover:bg-slate-900' }}">📈 Employee Performance</a>
-                    <a href="{{ route('employees.index') }}" class="block px-3 py-2 rounded-xl text-sm font-bold {{ request()->routeIs('employees.index', 'employees.create', 'employees.edit') ? 'bg-amber-400 text-slate-950' : 'text-slate-200 hover:bg-slate-900' }}">👥 Staff Roster (15 Users)</a>
+                    @if(Auth::user() && (Auth::user()->isAdmin() || Auth::user()->isHead()))
+                    <div class="pt-2 text-xs font-extrabold text-amber-400 uppercase">🛡️ {{ Auth::user()->isHead() ? 'TL Monitoring' : 'Admin Controls' }}</div>
+                    <a href="{{ route('employees.performance') }}" class="block px-3 py-2 rounded-xl text-sm font-bold {{ request()->routeIs('employees.performance') ? 'bg-amber-400 text-slate-950' : 'text-slate-200 hover:bg-slate-900' }}">📈 Performance Reports</a>
+                    <a href="{{ route('employees.meeting-notes') }}" class="block px-3 py-2 rounded-xl text-sm font-bold {{ request()->routeIs('employees.meeting-notes') ? 'bg-amber-400 text-slate-950' : 'text-slate-200 hover:bg-slate-900' }}">📝 1-on-1 Meeting Notes</a>
+                    <a href="{{ route('employees.index') }}" class="block px-3 py-2 rounded-xl text-sm font-bold {{ request()->routeIs('employees.index', 'employees.create', 'employees.edit') ? 'bg-amber-400 text-slate-950' : 'text-slate-200 hover:bg-slate-900' }}">👥 Staff & Access Control</a>
+                    @if(Auth::user()->isAdmin())
                     <a href="{{ route('cab-types.index') }}" class="block px-3 py-2 rounded-xl text-sm font-bold {{ request()->routeIs('cab-types.*') ? 'bg-amber-400 text-slate-950' : 'text-slate-200 hover:bg-slate-900' }}">🚕 Cab Types</a>
+                    @endif
                     @endif
                     <a href="{{ route('profile.edit') }}" class="block px-3 py-2 rounded-xl text-sm font-bold text-slate-200 hover:bg-slate-900">⚙️ Profile Settings</a>
                 </div>
