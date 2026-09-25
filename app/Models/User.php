@@ -33,17 +33,18 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return strtolower(trim($this->role ?? '')) === 'admin';
     }
 
     public function isAccountant(): bool
     {
-        return $this->role === 'accountant';
+        return strtolower(trim($this->role ?? '')) === 'accountant';
     }
 
     public function isHead(): bool
     {
-        return in_array($this->role, ['head', 'tl', 'team_lead']);
+        $role = strtolower(trim(str_replace([' ', '_', '-'], '', $this->role ?? '')));
+        return in_array($role, ['head', 'tl', 'teamlead', 'leader', 'manager']);
     }
 
     public function isTeamLead(): bool

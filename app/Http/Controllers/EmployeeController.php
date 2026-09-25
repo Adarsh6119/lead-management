@@ -17,8 +17,8 @@ class EmployeeController extends Controller
             abort(403, 'Admin or Team Lead access required.');
         }
 
-        $employees = User::whereIn('role', ['employee', 'accountant', 'head', 'tl', 'team_lead', 'admin'])
-            ->withCount(['leads', 'bookings'])
+        $employees = User::withCount(['leads', 'bookings'])
+            ->orderBy('name')
             ->get();
 
         return view('employees.index', compact('employees'));
@@ -78,7 +78,7 @@ class EmployeeController extends Controller
 
         $employee = User::findOrFail($id);
 
-        if ($user->isHead() && !$user->isAdmin() && $employee->role !== 'employee') {
+        if ($user->isHead() && !$user->isAdmin() && strtolower(trim($employee->role)) !== 'employee') {
             abort(403, 'Team Leads can only edit details of regular employees.');
         }
 
@@ -95,7 +95,7 @@ class EmployeeController extends Controller
         $employee = User::findOrFail($id);
 
         if ($user->isHead() && !$user->isAdmin()) {
-            if ($employee->role !== 'employee') {
+            if (strtolower(trim($employee->role)) !== 'employee') {
                 abort(403, 'Team Leads can only update regular employees.');
             }
             $request->merge(['role' => 'employee']);
@@ -139,7 +139,7 @@ class EmployeeController extends Controller
 
         $employee = User::findOrFail($id);
 
-        if ($user->isHead() && !$user->isAdmin() && $employee->role !== 'employee') {
+        if ($user->isHead() && !$user->isAdmin() && strtolower(trim($employee->role)) !== 'employee') {
             abort(403, 'Team Leads can only revoke or grant access for regular employees.');
         }
 
@@ -168,7 +168,7 @@ class EmployeeController extends Controller
         }
 
         // Team Lead can only delete regular employees
-        if ($user->isHead() && !$user->isAdmin() && $employee->role !== 'employee') {
+        if ($user->isHead() && !$user->isAdmin() && strtolower(trim($employee->role)) !== 'employee') {
             abort(403, 'Team Leads can only delete regular employees, not Accountants or Admins.');
         }
 

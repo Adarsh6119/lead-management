@@ -41,17 +41,17 @@
             </div>
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                 <div class="text-xs font-bold text-amber-500 uppercase tracking-wider">Sales Employees</div>
-                <div class="text-3xl font-black text-amber-600 mt-1">{{ $employees->where('role', 'employee')->count() }}</div>
+                <div class="text-3xl font-black text-amber-600 mt-1">{{ $employees->filter(fn($e) => strtolower(trim($e->role ?? '')) === 'employee')->count() }}</div>
                 <div class="text-xs text-slate-400 mt-1">Handling Leads & Bookings</div>
             </div>
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                 <div class="text-xs font-bold text-emerald-500 uppercase tracking-wider">Accountants</div>
-                <div class="text-3xl font-black text-emerald-600 mt-1">{{ $employees->where('role', 'accountant')->count() }}</div>
+                <div class="text-3xl font-black text-emerald-600 mt-1">{{ $employees->filter(fn($e) => $e->isAccountant())->count() }}</div>
                 <div class="text-xs text-slate-400 mt-1">Managing GST & Billing</div>
             </div>
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                 <div class="text-xs font-bold text-rose-500 uppercase tracking-wider">Admins</div>
-                <div class="text-3xl font-black text-rose-600 mt-1">{{ $employees->where('role', 'admin')->count() }}</div>
+                <div class="text-3xl font-black text-rose-600 mt-1">{{ $employees->filter(fn($e) => $e->isAdmin())->count() }}</div>
                 <div class="text-xs text-slate-400 mt-1">System Administrators</div>
             </div>
         </div>
@@ -90,8 +90,8 @@
                                     {{ $emp->name }}
                                 </td>
                                 <td class="py-3.5 px-4">
-                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold uppercase tracking-wide {{ $emp->role === 'admin' ? 'bg-rose-100 text-rose-800 border border-rose-200' : ($emp->role === 'accountant' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($emp->isHead() ? 'bg-purple-100 text-purple-800 border border-purple-200' : 'bg-amber-100 text-amber-800 border border-amber-200')) }}">
-                                        {{ $emp->isHead() ? 'HEAD / TL' : $emp->role }}
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold uppercase tracking-wide {{ $emp->isAdmin() ? 'bg-rose-100 text-rose-800 border border-rose-200' : ($emp->isAccountant() ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($emp->isHead() ? 'bg-purple-100 text-purple-800 border border-purple-200' : 'bg-amber-100 text-amber-800 border border-amber-200')) }}">
+                                        {{ $emp->isHead() ? 'HEAD / TL' : strtoupper($emp->role) }}
                                     </span>
                                 </td>
                                 <td class="py-3.5 px-4 font-mono text-slate-600">
@@ -118,7 +118,7 @@
                                         📝 Notes & Graph
                                     </a>
                                     
-                                    @if(Auth::user()->isAdmin() || (Auth::user()->isHead() && $emp->role === 'employee'))
+                                    @if(Auth::user()->isAdmin() || (Auth::user()->isHead() && strtolower(trim($emp->role ?? '')) === 'employee'))
                                         <form method="POST" action="{{ route('employees.toggle-access', $emp->id) }}" class="inline">
                                             @csrf
                                             <button type="submit" class="px-2.5 py-1 rounded-lg text-xs font-bold border transition-colors {{ ($emp->status === 'active' || $emp->is_active) ? 'bg-rose-50 text-rose-700 border-rose-300 hover:bg-rose-100' : 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100' }}">
