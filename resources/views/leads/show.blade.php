@@ -27,16 +27,29 @@
             </div>
             @endif
 
-            <!-- Duplicate Mobile Warning -->
-            @if($duplicateLeads->count() > 0)
-            <div class="p-4 bg-amber-50 border-l-4 border-amber-500 rounded-xl shadow-sm">
-                <div class="font-extrabold text-amber-900 text-sm flex items-center gap-2">⚠️ DUPLICATE MOBILE NUMBER — {{ $duplicateLeads->count() }} other lead(s) found with {{ $lead->mobile_no }}</div>
-                <div class="mt-2 space-y-1">
-                    @foreach($duplicateLeads as $dup)
-                    <a href="{{ route('leads.show', $dup->id) }}" class="block text-xs text-amber-800 hover:text-amber-600 font-semibold">
-                        → #LEAD-{{ str_pad($dup->id, 4, '0', STR_PAD_LEFT) }} · {{ $dup->customer_name }} · Status: {{ $dup->status }} · By: {{ $dup->employee_name }} ({{ $dup->date_created }})
-                    </a>
-                    @endforeach
+            <!-- Stale Lead or Active Follow-up Alert Banner -->
+            @if($lead->isOverdueNewLead())
+            <div class="p-4 bg-gradient-to-r from-rose-600 to-red-700 text-white rounded-2xl shadow-md flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">🚨</span>
+                    <div>
+                        <div class="font-black text-sm uppercase tracking-wide">ATTENTION: Stale New Lead ({{ $lead->days_old }} Days Pending)</div>
+                        <div class="text-xs text-rose-100 font-medium mt-0.5">
+                            This lead has been sitting in "New Lead" status for over 5 days. Please contact customer and update status or add remarks.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @elseif($lead->isFollowUp())
+            <div class="p-4 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 rounded-2xl shadow-md flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">⚡</span>
+                    <div>
+                        <div class="font-black text-sm uppercase tracking-wide">ACTIVE FOLLOW-UP LEAD</div>
+                        <div class="text-xs text-slate-900 font-medium mt-0.5">
+                            Active lead under follow-up. Add remarks after every customer call.
+                        </div>
+                    </div>
                 </div>
             </div>
             @endif

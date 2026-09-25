@@ -33,7 +33,13 @@ class LeadController extends Controller
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            if ($request->status === 'overdue_new') {
+                $fiveDaysAgo = \Carbon\Carbon::now()->subDays(5)->toDateString();
+                $query->where('status', 'New Lead')
+                      ->whereDate('date_created', '<=', $fiveDaysAgo);
+            } else {
+                $query->where('status', $request->status);
+            }
         }
 
         if ($request->filled('source')) {

@@ -77,6 +77,11 @@ class EmployeeController extends Controller
         }
 
         $employee = User::findOrFail($id);
+
+        if ($user->isHead() && !$user->isAdmin() && $employee->role !== 'employee') {
+            abort(403, 'Team Leads can only edit details of regular employees.');
+        }
+
         return view('employees.edit', compact('employee'));
     }
 
@@ -88,6 +93,13 @@ class EmployeeController extends Controller
         }
 
         $employee = User::findOrFail($id);
+
+        if ($user->isHead() && !$user->isAdmin()) {
+            if ($employee->role !== 'employee') {
+                abort(403, 'Team Leads can only update regular employees.');
+            }
+            $request->merge(['role' => 'employee']);
+        }
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -126,6 +138,11 @@ class EmployeeController extends Controller
         }
 
         $employee = User::findOrFail($id);
+
+        if ($user->isHead() && !$user->isAdmin() && $employee->role !== 'employee') {
+            abort(403, 'Team Leads can only revoke or grant access for regular employees.');
+        }
+
         $newStatus = ($employee->status === 'active') ? 'inactive' : 'active';
         
         $employee->update([
@@ -134,6 +151,32 @@ class EmployeeController extends Controller
         ]);
 
         $actionText = ($newStatus === 'active') ? 'GRANTED access to' : 'REVOKED access from';
-        return back()->with('success', "Team Lead successfully {$actionText} {$employee->name} ({$employee->login_id}).");
+        return back()->with('success', "Successfully {$actionText} {$employee->name} ({$employee->login_id}).");
+    }
+
+    public function destroy($id)
+    {
+        $user = Auth::user();
+        if (!$user->isAdmin() && !$user->isHead()) {
+            abort(403, 'Admin or Team Lead access required.');
+        }
+
+        $employee = User::findOrFail($id);
+
+        if ($employee->id === $user->id) {
+            return back()->with('error', 'You cannot delete your own logged-in account.');
+        }
+
+        // Team Lead can only delete regular employees
+        if ($user->isHead() && !$user->isAdmin() && $employee->role !== 'employee') {
+            abort(403, 'Team Leads can only delete regular employees, not Accountants or Admins.');
+        }
+
+        $employeeName = $employee->name;
+        $loginId = $employee->login_id;
+
+        $employee->delete();
+
+        return back()->with('success', "Employee account {$employeeName} ({$loginId}) has been permanently deleted.");
     }
 }

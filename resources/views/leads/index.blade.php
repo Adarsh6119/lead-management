@@ -22,6 +22,19 @@
             </div>
             @endif
 
+            <!-- Quick Filter Bar -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-1">
+                <a href="{{ route('leads.index') }}" class="px-3.5 py-1.5 rounded-xl text-xs font-black transition-all border {{ !request('status') ? 'bg-slate-900 text-white border-slate-900 shadow-sm' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50' }}">
+                    All Leads
+                </a>
+                <a href="{{ route('leads.index', ['status' => 'Follow Up']) }}" class="px-3.5 py-1.5 rounded-xl text-xs font-black transition-all border {{ request('status') === 'Follow Up' ? 'bg-amber-400 text-slate-950 border-amber-500 shadow-sm' : 'bg-amber-50 text-amber-900 border-amber-200 hover:bg-amber-100' }}">
+                    ⚡ Active Follow-Ups
+                </a>
+                <a href="{{ route('leads.index', ['status' => 'overdue_new']) }}" class="px-3.5 py-1.5 rounded-xl text-xs font-black transition-all border {{ request('status') === 'overdue_new' ? 'bg-rose-600 text-white border-rose-700 shadow-sm' : 'bg-rose-50 text-rose-800 border-rose-200 hover:bg-rose-100' }}">
+                    🚨 Overdue New Leads (>5 Days)
+                </a>
+            </div>
+
             <!-- Search & Filter Card -->
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
                 <form method="GET" action="{{ route('leads.index') }}" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 items-end">
@@ -33,6 +46,7 @@
                         <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Status Filter</label>
                         <select name="status" class="w-full bg-slate-50 border-slate-300 rounded-lg text-xs font-medium focus:ring-amber-500 focus:border-amber-500">
                             <option value="">All Statuses</option>
+                            <option value="overdue_new" {{ request('status') === 'overdue_new' ? 'selected' : '' }}>🚨 Overdue New Leads (>5 Days)</option>
                             @foreach(['New Lead', 'Follow Up', 'Confirm Booking', 'Booking Cancelled', 'Close / Lost'] as $st)
                                 <option value="{{ $st }}" {{ request('status') == $st ? 'selected' : '' }}>{{ $st }}</option>
                             @endforeach
@@ -87,7 +101,7 @@
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             @forelse($leads as $lead)
-                            <tr class="hover:bg-amber-50/40 transition-colors">
+                            <tr class="transition-colors {{ $lead->isOverdueNewLead() ? 'bg-rose-50/90 hover:bg-rose-100/90 border-l-4 border-l-rose-500' : ($lead->isFollowUp() ? 'bg-amber-50/80 hover:bg-amber-100/80 border-l-4 border-l-amber-500' : 'hover:bg-amber-50/40') }}">
                                 <td class="p-3.5">
                                     <div class="font-extrabold text-slate-900 font-mono">#LEAD-{{ str_pad($lead->id, 4, '0', STR_PAD_LEFT) }}</div>
                                     <div class="text-[10px] text-slate-400 font-semibold">{{ $lead->date_created }}</div>
@@ -119,9 +133,19 @@
                                     {{ $lead->employee_name }}
                                 </td>
                                 <td class="p-3.5">
-                                    <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider {{ $lead->status_color }}">
-                                        {{ $lead->status }}
-                                    </span>
+                                    @if($lead->isOverdueNewLead())
+                                        <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-sm inline-flex items-center gap-1 animate-pulse">
+                                            🚨 Stale (>5 Days)
+                                        </span>
+                                    @elseif($lead->isFollowUp())
+                                        <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-400 text-slate-950 shadow-sm inline-flex items-center gap-1">
+                                            ⚡ Active Follow-Up
+                                        </span>
+                                    @else
+                                        <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider {{ $lead->status_color }}">
+                                            {{ $lead->status }}
+                                        </span>
+                                    @endif
                                     @if($lead->tl_note)
                                         <div class="mt-1">
                                             <span class="px-2 py-0.5 rounded bg-purple-100 text-purple-900 border border-purple-300 font-extrabold text-[9px] inline-flex items-center gap-1">

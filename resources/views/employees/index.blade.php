@@ -26,6 +26,12 @@
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-sm font-semibold flex items-center justify-between">
+                <span>❌ {{ session('error') }}</span>
+            </div>
+        @endif
+
         <!-- Summary Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
@@ -112,16 +118,32 @@
                                         📝 Notes & Graph
                                     </a>
                                     
-                                    <form method="POST" action="{{ route('employees.toggle-access', $emp->id) }}" class="inline">
-                                        @csrf
-                                        <button type="submit" class="px-2.5 py-1 rounded-lg text-xs font-bold border transition-colors {{ ($emp->status === 'active' || $emp->is_active) ? 'bg-rose-50 text-rose-700 border-rose-300 hover:bg-rose-100' : 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100' }}">
-                                            {{ ($emp->status === 'active' || $emp->is_active) ? '🚫 Revoke Access' : '✅ Grant Access' }}
-                                        </button>
-                                    </form>
+                                    @if(Auth::user()->isAdmin() || (Auth::user()->isHead() && $emp->role === 'employee'))
+                                        <form method="POST" action="{{ route('employees.toggle-access', $emp->id) }}" class="inline">
+                                            @csrf
+                                            <button type="submit" class="px-2.5 py-1 rounded-lg text-xs font-bold border transition-colors {{ ($emp->status === 'active' || $emp->is_active) ? 'bg-rose-50 text-rose-700 border-rose-300 hover:bg-rose-100' : 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100' }}">
+                                                {{ ($emp->status === 'active' || $emp->is_active) ? '🚫 Revoke Access' : '✅ Grant Access' }}
+                                            </button>
+                                        </form>
 
-                                    <a href="{{ route('employees.edit', $emp->id) }}" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold border border-slate-300 transition-colors">
-                                        ✏️ Edit
-                                    </a>
+                                        <a href="{{ route('employees.edit', $emp->id) }}" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold border border-slate-300 transition-colors">
+                                            ✏️ Edit
+                                        </a>
+
+                                        @if(Auth::user()->id !== $emp->id)
+                                            <form method="POST" action="{{ route('employees.destroy', $emp->id) }}" class="inline" onsubmit="return confirm('Are you sure you want to permanently delete employee {{ $emp->name }} ({{ $emp->login_id }})? This action cannot be undone.');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold shadow-sm transition-colors" title="Permanently Delete Employee">
+                                                    🗑️ Delete
+                                                </button>
+                                            </form>
+                                        @endif
+                                    @else
+                                        <span class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed inline-flex items-center gap-1" title="TL cannot alter Admin, Accountant or TL accounts">
+                                            🔒 Restricted
+                                        </span>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach

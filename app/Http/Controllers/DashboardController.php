@@ -44,6 +44,15 @@ class DashboardController extends Controller
         if ($request->filled('source')) {
             $leadQuery->where('source', $request->source);
         }
+        if ($request->filled('status')) {
+            if ($request->status === 'overdue_new') {
+                $fiveDaysAgo = \Carbon\Carbon::now()->subDays(5)->toDateString();
+                $leadQuery->where('status', 'New Lead')
+                          ->whereDate('date_created', '<=', $fiveDaysAgo);
+            } else {
+                $leadQuery->where('status', $request->status);
+            }
+        }
         if ($request->filled('employee_id') && $user->role !== 'employee') {
             $leadQuery->where('employee_id', $request->employee_id);
             $bookingQuery->where('employee_id', $request->employee_id);
@@ -62,6 +71,13 @@ class DashboardController extends Controller
         $cancelledLeads = (clone $leadQuery)->where('status', 'Booking Cancelled')->count();
         $lostLeads = (clone $leadQuery)->where('status', 'Close / Lost')->count();
 
+        // 5+ Days Overdue New Leads
+        $fiveDaysAgo = \Carbon\Carbon::now()->subDays(5)->toDateString();
+        $overdueNewLeadsCount = (clone $leadQuery)
+            ->where('status', 'New Lead')
+            ->whereDate('date_created', '<=', $fiveDaysAgo)
+            ->count();
+
         $conversionRate = $totalLeads > 0 ? round(($confirmedBookings / $totalLeads) * 100, 1) : 0;
 
         // Financial Metrics
@@ -73,8 +89,22 @@ class DashboardController extends Controller
         $cgstTotal = (clone $accountingQuery)->sum('cgst_advance');
         $sgstTotal = (clone $accountingQuery)->sum('sgst_advance');
 
+        // High Priority Lead Collections for Employees & TLs
+        $overdueNewLeadsList = (clone $leadQuery)
+            ->where('status', 'New Lead')
+            ->whereDate('date_created', '<=', $fiveDaysAgo)
+            ->with(['employee', 'remarks'])
+            ->latest()
+            ->get();
+
+        $followUpLeadsList = (clone $leadQuery)
+            ->where('status', 'Follow Up')
+            ->with(['employee', 'remarks'])
+            ->latest()
+            ->get();
+
         // Recent Activity lists
-        $recentLeads = (clone $leadQuery)->with('employee')->latest()->take(6)->get();
+        $recentLeads = (clone $leadQuery)->with(['employee', 'remarks'])->latest()->take(8)->get();
         $recentBookings = (clone $bookingQuery)->latest()->take(6)->get();
 
         // Source Breakdown
@@ -92,9 +122,10 @@ class DashboardController extends Controller
 
         return view('dashboard', compact(
             'totalLeads', 'newLeads', 'followUpLeads', 'confirmedBookings',
-            'cancelledLeads', 'lostLeads', 'conversionRate',
+            'cancelledLeads', 'lostLeads', 'overdueNewLeadsCount', 'conversionRate',
             'totalRevenue', 'totalAdvance', 'totalPending', 'totalGst',
             'igstTotal', 'cgstTotal', 'sgstTotal',
+            'overdueNewLeadsList', 'followUpLeadsList',
             'recentLeads', 'recentBookings', 'sourceBreakdown',
             'employees', 'cabTypes', 'sources', 'states'
         ));
