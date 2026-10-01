@@ -46,6 +46,17 @@
                             </select>
                         </div>
 
+                        <!-- Lead Website / Domain -->
+                        <div>
+                            <label class="block text-xs font-extrabold text-slate-700 uppercase mb-1">🌐 Lead Website / Domain</label>
+                            <select name="website" class="w-full bg-slate-50 border-slate-300 rounded-xl text-sm font-medium focus:ring-amber-500 focus:border-amber-500">
+                                <option value="">Select Website (If Applicable)</option>
+                                @foreach($websites as $web)
+                                    <option value="{{ $web }}" {{ old('website') == $web ? 'selected' : '' }}>{{ $web }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <!-- Mobile Number (with live JS duplicate check) -->
                         <div>
                             <label class="block text-xs font-extrabold text-slate-700 uppercase mb-1">Customer Mobile No * (With Duplicate Check)</label>

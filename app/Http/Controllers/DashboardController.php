@@ -44,6 +44,9 @@ class DashboardController extends Controller
         if ($request->filled('source')) {
             $leadQuery->where('source', $request->source);
         }
+        if ($request->filled('website')) {
+            $leadQuery->where('website', $request->website);
+        }
         if ($request->filled('status')) {
             if ($request->status === 'overdue_new') {
                 $fiveDaysAgo = \Carbon\Carbon::now()->subDays(5)->toDateString();
@@ -118,6 +121,7 @@ class DashboardController extends Controller
         $employees = User::where('role', 'employee')->get();
         $cabTypes = CabType::where('is_active', true)->pluck('name');
         $sources = ['IVR', 'Missed Call', 'Offer Campaign', 'Website Enquiry', 'Direct Call', 'WhatsApp'];
+        $websites = config('app.websites', []);
         $states = config('app.indian_states', ['Uttar Pradesh']);
 
         return view('dashboard', compact(
@@ -127,7 +131,7 @@ class DashboardController extends Controller
             'igstTotal', 'cgstTotal', 'sgstTotal',
             'overdueNewLeadsList', 'followUpLeadsList',
             'recentLeads', 'recentBookings', 'sourceBreakdown',
-            'employees', 'cabTypes', 'sources', 'states'
+            'employees', 'cabTypes', 'sources', 'websites', 'states'
         ));
     }
 }

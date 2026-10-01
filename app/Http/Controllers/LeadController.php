@@ -46,6 +46,10 @@ class LeadController extends Controller
             $query->where('source', $request->source);
         }
 
+        if ($request->filled('website')) {
+            $query->where('website', $request->website);
+        }
+
         if ($request->filled('employee_id') && $user->role !== 'employee') {
             $query->where('employee_id', $request->employee_id);
         }
@@ -54,8 +58,9 @@ class LeadController extends Controller
         $employees = User::where('role', 'employee')->get();
         $cabTypes = CabType::where('is_active', true)->pluck('name');
         $sources = ['IVR', 'Missed Call', 'Offer Campaign', 'Website Enquiry', 'Direct Call', 'WhatsApp'];
+        $websites = config('app.websites', []);
 
-        return view('leads.index', compact('leads', 'employees', 'cabTypes', 'sources'));
+        return view('leads.index', compact('leads', 'employees', 'cabTypes', 'sources', 'websites'));
     }
 
     public function create()
@@ -63,7 +68,8 @@ class LeadController extends Controller
         $cabTypes = CabType::where('is_active', true)->pluck('name');
         $employees = User::where('role', 'employee')->get();
         $sources = ['IVR', 'Missed Call', 'Offer Campaign', 'Website Enquiry', 'Direct Call', 'WhatsApp'];
-        return view('leads.create', compact('cabTypes', 'employees', 'sources'));
+        $websites = config('app.websites', []);
+        return view('leads.create', compact('cabTypes', 'employees', 'sources', 'websites'));
     }
 
     public function store(Request $request)
@@ -71,6 +77,7 @@ class LeadController extends Controller
         $request->validate([
             'date_created' => 'required|date',
             'source' => 'required|string',
+            'website' => 'nullable|string',
             'mobile_no' => 'required|string|max:15',
             'customer_name' => 'nullable|string|max:255',
             'pickup_city' => 'nullable|string|max:255',
@@ -95,6 +102,7 @@ class LeadController extends Controller
         $lead = Lead::create([
             'date_created' => $request->date_created,
             'source' => $request->source,
+            'website' => $request->website,
             'mobile_no' => $request->mobile_no,
             'customer_name' => $request->customer_name,
             'pickup_city' => $request->pickup_city,

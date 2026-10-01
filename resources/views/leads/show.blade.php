@@ -78,6 +78,10 @@
                                 <div class="font-bold text-slate-900 mt-0.5">{{ $lead->source }}</div>
                             </div>
                             <div>
+                                <div class="text-[10px] font-extrabold text-slate-500 uppercase">🌐 Website</div>
+                                <div class="font-bold text-amber-900 mt-0.5">{{ $lead->website ?: '—' }}</div>
+                            </div>
+                            <div>
                                 <div class="text-[10px] font-extrabold text-slate-500 uppercase">Pickup City</div>
                                 <div class="font-bold text-slate-900 mt-0.5">{{ $lead->pickup_city ?: '—' }}</div>
                             </div>
@@ -147,10 +151,8 @@
                                 <div>
                                     <label class="block text-xs font-extrabold text-emerald-800 uppercase mb-1">Payment Mode *</label>
                                     <select name="payment_mode" required class="w-full bg-white border-emerald-300 rounded-xl text-sm focus:ring-emerald-500">
+                                        <option value="Razorpay">Razorpay</option>
                                         <option value="UPI">UPI</option>
-                                        <option value="Bank Transfer">Bank Transfer</option>
-                                        <option value="Cash">Cash</option>
-                                        <option value="Card">Card</option>
                                     </select>
                                 </div>
                                 <div>

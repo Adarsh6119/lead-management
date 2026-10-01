@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS `leads` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `date_created` date NOT NULL,
   `source` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `website` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `mobile_no` varchar(15) COLLATE utf8mb4_unicode_ci NOT NULL,
   `customer_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `pickup_city` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -106,6 +107,7 @@ CREATE TABLE IF NOT EXISTS `leads` (
   KEY `leads_mobile_no_index` (`mobile_no`),
   KEY `leads_status_index` (`status`),
   KEY `leads_source_index` (`source`),
+  KEY `leads_website_index` (`website`),
   KEY `leads_employee_id_index` (`employee_id`),
   KEY `leads_next_followup_date_index` (`next_followup_date`),
   CONSTRAINT `leads_employee_id_foreign` FOREIGN KEY (`employee_id`) REFERENCES `users` (`id`) ON DELETE CASCADE

@@ -69,6 +69,15 @@ return [
 
     'business_state' => env('BUSINESS_STATE', 'Uttar Pradesh'),
 
+    'websites' => [
+        'chikucab.com',
+        'chikucabs.com',
+        'taxiyatri.com',
+        'yatratempotraveller.com',
+        'hireurbaniatempotraveller.com',
+        'tirupatitravel.com',
+    ],
+
     'indian_states' => [
         'Uttar Pradesh',
         'Andaman and Nicobar Islands',

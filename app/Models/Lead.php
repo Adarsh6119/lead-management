@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Lead extends Model
 {
     protected $fillable = [
-        'date_created', 'source', 'mobile_no', 'customer_name',
+        'date_created', 'source', 'website', 'mobile_no', 'customer_name',
         'pickup_city', 'destination', 'pickup_date', 'pickup_time',
         'return_date', 'trip_type', 'cab_type', 'state',
         'web_rate', 'discounted_rate', 'final_quoted_rate', 'offer_discount',

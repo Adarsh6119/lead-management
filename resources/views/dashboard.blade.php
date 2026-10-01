@@ -60,6 +60,15 @@
                             @endforeach
                         </select>
                     </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">🌐 Website</label>
+                        <select name="website" class="w-full bg-slate-50 border-slate-300 rounded-lg text-xs font-medium focus:ring-amber-500 focus:border-amber-500">
+                            <option value="">All Websites</option>
+                            @foreach($websites as $web)
+                                <option value="{{ $web }}" {{ request('website') == $web ? 'selected' : '' }}>🌐 {{ $web }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     @if(Auth::user()->role !== 'employee')
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Employee</label>

@@ -18,6 +18,10 @@ class DemoDataSeeder extends Seeder
         $employees = User::whereIn('role', ['employee', 'head', 'admin'])->get();
         $cabTypes = CabType::pluck('name')->toArray();
         $sources = ['IVR', 'Missed Call', 'Offer Campaign', 'Website Enquiry', 'Direct Call', 'WhatsApp'];
+        $websites = config('app.websites', [
+            'chikucab.com', 'chikucabs.com', 'taxiyatri.com',
+            'yatratempotraveller.com', 'hireurbaniatempotraveller.com', 'tirupatitravel.com'
+        ]);
         $cities = ['Varanasi', 'Lucknow', 'Delhi', 'Ayodhya', 'Prayagraj', 'Gorakhpur', 'Agra', 'Jaipur', 'Patna'];
         $statuses = ['New Lead', 'Follow Up', 'Confirm Booking', 'Booking Cancelled', 'Close / Lost'];
 
@@ -43,6 +47,7 @@ class DemoDataSeeder extends Seeder
             $lead = Lead::create([
                 'date_created' => $dateCreated,
                 'source' => $sources[$index % count($sources)],
+                'website' => $websites[$index % count($websites)],
                 'mobile_no' => $c['mobile'],
                 'customer_name' => $c['name'],
                 'pickup_city' => $c['city'],
@@ -97,7 +102,7 @@ class DemoDataSeeder extends Seeder
                     'cab_number' => 'UP 65 ' . chr(rand(65, 90)) . chr(rand(65, 90)) . ' ' . rand(1000, 9999),
                     'rate' => $estAmt,
                     'advance_payment' => $advAmt,
-                    'payment_mode' => rand(0, 1) ? 'UPI' : 'Bank Transfer',
+                    'payment_mode' => rand(0, 1) ? 'Razorpay' : 'UPI',
                     'booking_status' => 'Confirmed',
                     'employee_id' => $emp->id,
                 ]);

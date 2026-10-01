@@ -37,7 +37,7 @@
 
             <!-- Search & Filter Card -->
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
-                <form method="GET" action="{{ route('leads.index') }}" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 items-end">
+                <form method="GET" action="{{ route('leads.index') }}" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-3 items-end">
                     <div>
                         <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">Search Customer / Phone / City</label>
                         <input type="text" name="search" value="{{ request('search') }}" placeholder="Name, mobile no, city..." class="w-full bg-slate-50 border-slate-300 rounded-lg text-xs font-medium focus:ring-amber-500 focus:border-amber-500">
@@ -58,6 +58,15 @@
                             <option value="">All Sources</option>
                             @foreach($sources as $src)
                                 <option value="{{ $src }}" {{ request('source') == $src ? 'selected' : '' }}>{{ $src }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 uppercase mb-1">🌐 Website Filter</label>
+                        <select name="website" class="w-full bg-slate-50 border-slate-300 rounded-lg text-xs font-medium focus:ring-amber-500 focus:border-amber-500">
+                            <option value="">All Websites</option>
+                            @foreach($websites as $web)
+                                <option value="{{ $web }}" {{ request('website') == $web ? 'selected' : '' }}>🌐 {{ $web }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -93,7 +102,7 @@
                                 <th class="p-3.5">Customer & Mobile</th>
                                 <th class="p-3.5">Route & Trip</th>
                                 <th class="p-3.5">Cab Requested</th>
-                                <th class="p-3.5">Source</th>
+                                <th class="p-3.5">Source & Website</th>
                                 <th class="p-3.5">Assigned Employee</th>
                                 <th class="p-3.5">Status</th>
                                 <th class="p-3.5 text-right">Actions</th>
@@ -125,9 +134,16 @@
                                     {{ $lead->cab_type ?: 'Not Specified' }}
                                 </td>
                                 <td class="p-3.5">
-                                    <span class="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 font-extrabold text-[10px]">
+                                    <span class="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 font-extrabold text-[10px] inline-block">
                                         {{ $lead->source }}
                                     </span>
+                                    @if($lead->website)
+                                        <div class="mt-1">
+                                            <span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 font-extrabold text-[9px] border border-amber-300 inline-flex items-center gap-1">
+                                                🌐 {{ $lead->website }}
+                                            </span>
+                                        </div>
+                                    @endif
                                 </td>
                                 <td class="p-3.5 font-medium text-slate-700">
                                     {{ $lead->employee_name }}
