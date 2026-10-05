@@ -10,6 +10,7 @@ class EmployeeTarget extends Model
         'employee_id',
         'month',
         'year',
+        'advance_target',
         'lead_target',
         'booking_target',
         'revenue_target',
@@ -20,6 +21,7 @@ class EmployeeTarget extends Model
         return [
             'month' => 'integer',
             'year' => 'integer',
+            'advance_target' => 'decimal:2',
             'lead_target' => 'integer',
             'booking_target' => 'integer',
             'revenue_target' => 'decimal:2',

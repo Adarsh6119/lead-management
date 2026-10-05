@@ -42,7 +42,7 @@
                 @if($topPerformer)
                     <div class="text-xl font-black text-slate-900 mt-1">{{ $topPerformer['name'] }}</div>
                     <div class="text-xs text-amber-600 font-bold mt-1 font-mono">
-                        {{ $topPerformer['conversion'] }}% conversion · {{ $topPerformer['bookings'] }} bookings
+                        ₹{{ number_format($topPerformer['advance_collected']) }} Advance · {{ $topPerformer['score'] }}% Target Score
                     </div>
                 @else
                     <div class="text-lg font-bold text-slate-400 mt-2">No data yet</div>
@@ -50,7 +50,7 @@
             </div>
 
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                <div class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">📋 Total Leads</div>
+                <div class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">📋 Total Leads Worked On</div>
                 <div class="text-3xl font-black text-indigo-900 mt-1">{{ number_format($totalLeadsMonth) }}</div>
                 <div class="text-xs text-slate-500 mt-1">{{ count($performanceData) }} Sales Staff</div>
             </div>
@@ -59,13 +59,13 @@
                 <div class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-600">✅ Confirmed Bookings</div>
                 <div class="text-3xl font-black text-emerald-600 mt-1">{{ number_format($totalBookingsMonth) }}</div>
                 <div class="text-xs text-emerald-700 font-semibold mt-1">
-                    {{ $totalLeadsMonth > 0 ? round(($totalBookingsMonth / $totalLeadsMonth) * 100, 1) : 0 }}% conversion
+                    {{ $totalLeadsMonth > 0 ? round(($totalBookingsMonth / $totalLeadsMonth) * 100, 1) : 0 }}% overall conversion
                 </div>
             </div>
 
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                <div class="text-[11px] font-extrabold uppercase tracking-wider text-amber-600">💰 Revenue</div>
-                <div class="text-3xl font-black text-slate-900 mt-1">₹{{ number_format($totalRevenueMonth) }}</div>
+                <div class="text-[11px] font-extrabold uppercase tracking-wider text-amber-600">💵 Total Advance Collected</div>
+                <div class="text-3xl font-black text-slate-900 mt-1">₹{{ number_format($totalAdvanceMonth) }}</div>
                 <div class="text-xs text-amber-600 mt-1">{{ $months[$selectedMonth] }} {{ $selectedYear }}</div>
             </div>
         </div>
@@ -124,65 +124,52 @@
                             🟢 {{ $item['upcoming_followups'] }} Upcoming
                         </span>
                         @endif
-                        <!-- Score Badge -->
+                        <!-- Advance Score Badge -->
                         <span class="px-3 py-1 rounded-full text-xs font-black text-white {{ $scoreBg }}">
-                            Score: {{ $score }}%
+                            Monthly Advance Score: {{ $score }}%
                         </span>
                     </div>
                 </div>
 
                 <!-- Targets & Progress Row -->
-                <div class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 bg-slate-50/50">
-                    <!-- Conversion Rate -->
-                    <div class="text-center">
-                        <div class="text-[10px] font-black uppercase text-slate-400 tracking-wider">Conversion</div>
-                        <div class="text-2xl font-black text-slate-900 mt-0.5">{{ $item['conversion_rate'] }}%</div>
-                        <div class="text-[10px] text-slate-500 font-mono">{{ $item['confirmed_bookings'] }}/{{ $item['total_leads'] }} leads</div>
+                <div class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-slate-50/50">
+                    <!-- Worked On Leads -->
+                    <div class="text-center p-3 bg-white rounded-xl border border-slate-200 shadow-sm">
+                        <div class="text-[10px] font-black uppercase text-slate-400 tracking-wider">📋 Leads Worked On</div>
+                        <div class="text-2xl font-black text-indigo-950 mt-0.5">{{ $item['total_leads'] }}</div>
+                        <div class="text-[10px] text-slate-500 font-mono mt-0.5">{{ $item['new_leads'] }} New · {{ $item['followup_leads'] }} Follow-up</div>
                     </div>
 
-                    <!-- Lead Target Progress -->
-                    <div>
-                        <div class="flex justify-between text-[10px] font-bold mb-1">
-                            <span class="text-slate-600">📋 Leads {{ $item['total_leads'] }}/{{ $item['lead_target'] }}</span>
-                            <span class="text-slate-500">{{ $item['lead_pct'] }}%</span>
-                        </div>
-                        <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
-                            <div class="h-3 rounded-full transition-all duration-500 {{ $item['lead_pct'] >= 100 ? 'bg-emerald-500' : ($item['lead_pct'] >= 60 ? 'bg-amber-400' : 'bg-indigo-500') }}"
-                                 style="width: {{ min(100, $item['lead_pct']) }}%"></div>
-                        </div>
+                    <!-- Bookings & Conversion -->
+                    <div class="text-center p-3 bg-white rounded-xl border border-slate-200 shadow-sm">
+                        <div class="text-[10px] font-black uppercase text-slate-400 tracking-wider">✅ Confirmed Bookings</div>
+                        <div class="text-2xl font-black text-emerald-600 mt-0.5">{{ $item['confirmed_bookings'] }}</div>
+                        <div class="text-[10px] text-emerald-700 font-bold mt-0.5">{{ $item['conversion_rate'] }}% Conversion Rate</div>
                     </div>
 
-                    <!-- Booking Target Progress -->
-                    <div>
-                        <div class="flex justify-between text-[10px] font-bold mb-1">
-                            <span class="text-emerald-700">✅ Bookings {{ $item['confirmed_bookings'] }}/{{ $item['booking_target'] }}</span>
-                            <span class="text-emerald-600">{{ $item['booking_pct'] }}%</span>
+                    <!-- Monthly Advance Target & Progress -->
+                    <div class="p-3 bg-white rounded-xl border border-slate-200 shadow-sm">
+                        <div class="flex justify-between text-[10px] font-extrabold mb-1">
+                            <span class="text-slate-800">💰 Advance: ₹{{ number_format($item['advance_collected']) }}</span>
+                            <span class="text-amber-600">/ ₹{{ number_format($item['advance_target']) }}</span>
                         </div>
-                        <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
-                            <div class="h-3 rounded-full transition-all duration-500 {{ $item['booking_pct'] >= 100 ? 'bg-emerald-500' : ($item['booking_pct'] >= 60 ? 'bg-amber-400' : 'bg-rose-400') }}"
-                                 style="width: {{ min(100, $item['booking_pct']) }}%"></div>
+                        <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden mt-1">
+                            <div class="h-3 rounded-full transition-all duration-500 {{ $item['advance_pct'] >= 100 ? 'bg-emerald-500' : ($item['advance_pct'] >= 50 ? 'bg-amber-400' : 'bg-rose-400') }}"
+                                 style="width: {{ min(100, $item['advance_pct']) }}%"></div>
                         </div>
-                    </div>
-
-                    <!-- Revenue Target Progress -->
-                    <div>
-                        <div class="flex justify-between text-[10px] font-bold mb-1">
-                            <span class="text-slate-700">💰 ₹{{ number_format($item['revenue']) }}</span>
-                            <span class="text-slate-400">/ ₹{{ number_format($item['revenue_target']) }}</span>
-                        </div>
-                        <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
-                            <div class="h-3 rounded-full transition-all duration-500 {{ $item['revenue_pct'] >= 100 ? 'bg-emerald-500' : ($item['revenue_pct'] >= 60 ? 'bg-amber-400' : 'bg-sky-500') }}"
-                                 style="width: {{ min(100, $item['revenue_pct']) }}%"></div>
+                        <div class="text-[10px] font-bold text-slate-500 mt-1 flex justify-between">
+                            <span>Target Progress:</span>
+                            <span class="{{ $item['advance_pct'] >= 100 ? 'text-emerald-600 font-extrabold' : 'text-slate-700' }}">{{ $item['advance_pct'] }}%</span>
                         </div>
                     </div>
 
                     <!-- Action Buttons -->
                     <div class="flex flex-col gap-1.5 justify-center">
-                        <button @click="showWorklog = !showWorklog" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[11px] font-extrabold transition-all flex items-center justify-center gap-1">
+                        <button @click="showWorklog = !showWorklog" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[11px] font-extrabold transition-all flex items-center justify-center gap-1 shadow-sm">
                             <span>🔍</span> <span x-text="showWorklog ? 'Hide Worklog' : 'Full Worklog & Follow-ups'"></span>
                         </button>
-                        <button @click="showTarget = !showTarget" class="px-3 py-1.5 bg-amber-400 hover:bg-amber-500 text-slate-950 rounded-xl text-[11px] font-extrabold transition-all flex items-center justify-center gap-1">
-                            ⚙️ Set Monthly Target
+                        <button @click="showTarget = !showTarget" class="px-3 py-2 bg-amber-400 hover:bg-amber-500 text-slate-950 rounded-xl text-[11px] font-extrabold transition-all flex items-center justify-center gap-1 shadow-sm">
+                            ⚙️ Set Monthly Advance Target
                         </button>
                     </div>
                 </div>
@@ -338,30 +325,22 @@
 
                 <!-- ===== EXPANDABLE: SET TARGET FORM ===== -->
                 <div x-show="showTarget" x-transition class="border-t border-slate-200 p-4 bg-slate-900">
-                    <form method="POST" action="{{ route('employees.update-target', $emp->id) }}" class="grid grid-cols-1 sm:grid-cols-5 gap-3 items-end">
+                    <form method="POST" action="{{ route('employees.update-target', $emp->id) }}" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
                         @csrf
                         <input type="hidden" name="month" value="{{ $selectedMonth }}">
                         <input type="hidden" name="year" value="{{ $selectedYear }}">
 
                         <div>
-                            <label class="block text-[10px] font-bold text-amber-400 mb-1 uppercase">Leads Target</label>
-                            <input type="number" name="lead_target" value="{{ $item['lead_target'] }}" required min="1" class="w-full bg-slate-950 border border-slate-700 rounded-xl py-2 px-3 text-white text-xs focus:ring-amber-400">
+                            <label class="block text-[10px] font-extrabold text-amber-400 mb-1 uppercase tracking-wider">Monthly Advance Target (₹)</label>
+                            <input type="number" step="0.01" name="advance_target" value="{{ $item['advance_target'] }}" required min="0" class="w-full bg-slate-950 border border-slate-700 rounded-xl py-2 px-3 text-white text-xs font-bold focus:ring-amber-400">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-amber-400 mb-1 uppercase">Bookings Target</label>
-                            <input type="number" name="booking_target" value="{{ $item['booking_target'] }}" required min="1" class="w-full bg-slate-950 border border-slate-700 rounded-xl py-2 px-3 text-white text-xs focus:ring-amber-400">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-amber-400 mb-1 uppercase">Revenue Target (₹)</label>
-                            <input type="number" step="0.01" name="revenue_target" value="{{ $item['revenue_target'] }}" required min="0" class="w-full bg-slate-950 border border-slate-700 rounded-xl py-2 px-3 text-white text-xs focus:ring-amber-400">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase">Period</label>
+                            <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">Target Period</label>
                             <div class="py-2 px-3 bg-slate-800 border border-slate-700 rounded-xl text-xs text-slate-300 font-mono">{{ $months[$selectedMonth] }} {{ $selectedYear }}</div>
                         </div>
                         <div>
-                            <button type="submit" class="w-full py-2.5 bg-amber-400 hover:bg-amber-500 text-slate-950 font-black rounded-xl text-xs shadow-lg transition-all">
-                                💾 Save Target
+                            <button type="submit" class="w-full py-2.5 bg-amber-400 hover:bg-amber-500 text-slate-950 font-black rounded-xl text-xs shadow-lg transition-all flex items-center justify-center gap-1">
+                                💾 Save Advance Target
                             </button>
                         </div>
                     </form>

@@ -31,9 +31,9 @@ class EmployeePerformanceController extends Controller
         $performanceData = [];
         $totalLeadsMonth = 0;
         $totalBookingsMonth = 0;
-        $totalRevenueMonth = 0;
+        $totalAdvanceMonth = 0;
         $topPerformer = null;
-        $maxConversion = -1;
+        $maxScore = -1;
 
         foreach ($employees as $emp) {
             // Target for month
@@ -42,9 +42,7 @@ class EmployeePerformanceController extends Controller
                 ->where('year', $selectedYear)
                 ->first();
 
-            $leadTarget = $target ? $target->lead_target : 50;
-            $bookingTarget = $target ? $target->booking_target : 10;
-            $revenueTarget = $target ? (float) $target->revenue_target : 100000.00;
+            $advanceTarget = $target ? (float) ($target->advance_target ?? $target->revenue_target ?? 50000.00) : 50000.00;
 
             // Leads in month
             $leadsQuery = Lead::where('employee_id', $emp->id)
@@ -58,34 +56,34 @@ class EmployeePerformanceController extends Controller
             $cancelledLeads = (clone $leadsQuery)->where('status', 'Booking Cancelled')->count();
             $lostLeads = (clone $leadsQuery)->where('status', 'Close / Lost')->count();
 
-            // Revenue generated from accounting in month
-            $revenue = (float) Accounting::where('employee_id', $emp->id)
+            // Advance amount collected in month (from Accounting)
+            $advanceCollected = (float) Accounting::where('employee_id', $emp->id)
                 ->whereYear('created_at', $selectedYear)
                 ->whereMonth('created_at', $selectedMonth)
-                ->sum('estimated_amount');
+                ->sum('advance');
 
-            // Fallback: sum from bookings table if accounting is empty
-            if ($revenue == 0 && $confirmedBookings > 0) {
-                $revenue = (float) Booking::where('employee_id', $emp->id)
+            // Fallback: sum advance_payment from bookings table if accounting is empty
+            if ($advanceCollected == 0 && $confirmedBookings > 0) {
+                $advanceCollected = (float) Booking::where('employee_id', $emp->id)
                     ->whereYear('date', $selectedYear)
                     ->whereMonth('date', $selectedMonth)
-                    ->sum('rate');
+                    ->sum('advance_payment');
             }
 
             $conversionRate = $totalLeads > 0 ? round(($confirmedBookings / $totalLeads) * 100, 1) : 0;
-            $leadPct = $leadTarget > 0 ? min(100, round(($totalLeads / $leadTarget) * 100, 1)) : 0;
-            $bookingPct = $bookingTarget > 0 ? min(100, round(($confirmedBookings / $bookingTarget) * 100, 1)) : 0;
-            $revenuePct = $revenueTarget > 0 ? min(100, round(($revenue / $revenueTarget) * 100, 1)) : 0;
+            $advancePct = $advanceTarget > 0 ? round(($advanceCollected / $advanceTarget) * 100, 1) : 0;
 
-            // Overall Score = Weighted average (30% leads, 40% bookings, 30% revenue)
-            $overallScore = round(($leadPct * 0.3) + ($bookingPct * 0.4) + ($revenuePct * 0.3), 1);
+            // Monthly score is calculated directly from Advance Amount performance
+            $overallScore = $advancePct;
 
-            if ($conversionRate > $maxConversion && $totalLeads > 0) {
-                $maxConversion = $conversionRate;
+            if ($overallScore > $maxScore && $totalLeads > 0) {
+                $maxScore = $overallScore;
                 $topPerformer = [
                     'name' => $emp->name,
                     'login_id' => $emp->login_id,
-                    'conversion' => $conversionRate,
+                    'advance_collected' => $advanceCollected,
+                    'advance_target' => $advanceTarget,
+                    'score' => $overallScore,
                     'bookings' => $confirmedBookings,
                 ];
             }
@@ -127,25 +125,21 @@ class EmployeePerformanceController extends Controller
 
             $totalLeadsMonth += $totalLeads;
             $totalBookingsMonth += $confirmedBookings;
-            $totalRevenueMonth += $revenue;
+            $totalAdvanceMonth += $advanceCollected;
 
             $performanceData[] = [
                 'employee' => $emp,
                 'target' => $target,
-                'lead_target' => $leadTarget,
-                'booking_target' => $bookingTarget,
-                'revenue_target' => $revenueTarget,
+                'advance_target' => $advanceTarget,
+                'advance_collected' => $advanceCollected,
+                'advance_pct' => $advancePct,
                 'total_leads' => $totalLeads,
                 'new_leads' => $newLeads,
                 'followup_leads' => $followUpLeads,
                 'confirmed_bookings' => $confirmedBookings,
                 'cancelled_leads' => $cancelledLeads,
                 'lost_leads' => $lostLeads,
-                'revenue' => $revenue,
                 'conversion_rate' => $conversionRate,
-                'lead_pct' => $leadPct,
-                'booking_pct' => $bookingPct,
-                'revenue_pct' => $revenuePct,
                 'overall_score' => $overallScore,
                 'active_leads' => $activeLeads,
                 'active_leads_count' => $activeLeads->count(),
@@ -172,7 +166,7 @@ class EmployeePerformanceController extends Controller
             'months',
             'totalLeadsMonth',
             'totalBookingsMonth',
-            'totalRevenueMonth',
+            'totalAdvanceMonth',
             'topPerformer',
             'today'
         ));
@@ -188,9 +182,7 @@ class EmployeePerformanceController extends Controller
         $request->validate([
             'month' => 'required|integer|between:1,12',
             'year' => 'required|integer|min:2020|max:2035',
-            'lead_target' => 'required|integer|min:1',
-            'booking_target' => 'required|integer|min:1',
-            'revenue_target' => 'required|numeric|min:0',
+            'advance_target' => 'required|numeric|min:0',
         ]);
 
         EmployeeTarget::updateOrCreate(
@@ -200,13 +192,12 @@ class EmployeePerformanceController extends Controller
                 'year' => $request->year,
             ],
             [
-                'lead_target' => $request->lead_target,
-                'booking_target' => $request->booking_target,
-                'revenue_target' => $request->revenue_target,
+                'advance_target' => $request->advance_target,
+                'revenue_target' => $request->advance_target,
             ]
         );
 
-        return redirect()->back()->with('success', 'Monthly target updated successfully for employee!');
+        return redirect()->back()->with('success', 'Monthly advance target updated successfully for employee!');
     }
 
     public function meetingNotes(Request $request, $employeeId = null)

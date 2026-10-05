@@ -84,7 +84,7 @@
                                 <th class="p-3">Estimated (₹)</th>
                                 <th class="p-3">Advance (₹)</th>
                                 <th class="p-3">GST on Adv (5%)</th>
-                                <th class="p-3">Pending (₹)</th>
+                                <th class="p-3">Vendor Amount</th>
                                 <th class="p-3">State & GST Type</th>
                                 <th class="p-3">Payment</th>
                                 <th class="p-3 text-right">Actions</th>

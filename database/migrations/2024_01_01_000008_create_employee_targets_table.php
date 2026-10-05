@@ -13,6 +13,7 @@ return new class extends Migration
             $table->foreignId('employee_id')->constrained('users')->onDelete('cascade');
             $table->integer('month');
             $table->integer('year');
+            $table->decimal('advance_target', 12, 2)->default(50000.00);
             $table->integer('lead_target')->default(50);
             $table->integer('booking_target')->default(10);
             $table->decimal('revenue_target', 12, 2)->default(100000.00);
